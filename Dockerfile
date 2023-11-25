@@ -27,9 +27,13 @@ RUN chmod +x /usr/local/bin/supw
 ARG BZIP_URL=https://github.com/mumble-voip/mumble/releases/download/${MUMBLE_VERSION}/murmur-static_x86-${MUMBLE_VERSION}.tar.bz2
 
 # Install dependencies, fetch Mumble bzip archive and chown files
-RUN apk add --update ca-certificates bzip2 su-exec tar tzdata wget \
+RUN apk add --update ca-certificates bzip2 su-exec tar tzdata wget ruby git libcelt-dev libsamplerate0-dev \
     && wget -qO- ${BZIP_URL} | tar -xjv --strip-components=1 -C /opt/mumble \
-    && apk del ca-certificates bzip2 tar wget && rm -rf /var/cache/apk/* \
+    && gem install bundler \
+    && git clone git://github.com/elliottwilliams/mumbletune.git \
+    && cd mumbletune \
+    && bundle install \
+    && apk del ca-certificates bzip2 tar wget git && rm -rf /var/cache/apk/* \
     && chown -R mumble:mumble /etc/mumble /opt/mumble
 
 # Expose ports
